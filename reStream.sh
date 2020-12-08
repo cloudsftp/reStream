@@ -69,6 +69,9 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+# list of ffmpeg filters to apply
+video_filters="null"
+
 ssh_cmd() {
     echo "[SSH]" "$@" >&2
     ssh -o ConnectTimeout=1 "$ssh_host" "$@"
@@ -119,9 +122,19 @@ case "$rm_version" in
         window_offset="$((skip_bytes % page_size))"
         window_length_blocks="$((window_bytes / page_size + 1))"
 
+        # find custom head
+        if ssh_cmd "[ -f /opt/bin/head ]"; then
+            head="/opt/bin/head"
+        elif ssh_cmd "[ -f ~/head ]"; then
+            head="~/head"
+        fi
+
         # Using dd with bs=1 is too slow, so we first carve out the pages our desired
         # bytes are located in, and then we trim the resulting data with what we need.
-        head_fb0="dd if=/proc/$pid/mem bs=$page_size skip=$window_start_blocks count=$window_length_blocks 2>/dev/null | tail -c+$window_offset | head -c $window_bytes"
+        head_fb0="dd if=/proc/$pid/mem bs=$page_size skip=$window_start_blocks count=$window_length_blocks 2>/dev/null | tail -c+$window_offset | $head -c $window_bytes"
+
+        # rotate by 90 degrees to the right
+        video_filters="$video_filters,transpose=2"
         ;;
     *)
         echo "Unsupported reMarkable version: $rm_version."
@@ -172,9 +185,6 @@ if $measure_throughput; then
 else
     host_passthrough="cat"
 fi
-
-# list of ffmpeg filters to apply
-video_filters=""
 
 # store extra ffmpeg arguments in $@
 set --

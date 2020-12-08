@@ -39,8 +39,17 @@ On your **host** machine:
 - ffmpeg (with ffplay)
 - ssh
 - Video4Linux loopback kernel module if you want to use `--webcam`
+- Custom version of head on your reMarkable
 
-On your **reMarkable** nothing is needed, unless you want...
+### Head
+
+Can be installed by copying the `head.arm.static` program to your reMarkable with
+`scp head.arm.static root@10.11.99.1:/home/root/head`, make it executable with
+`ssh root@10.11.99.1 'chmod +x /home/root/lz4`.
+
+Or you can also install it via [the entware package manager](https://github.com/Evidlo/remarkable_entware).
+
+On your **reMarkable** nothing else is needed, unless you want...
 
 ### Sub-second latency
 
@@ -69,13 +78,13 @@ apt install v4l2loopback-utils v4l2loopback-dkms
 
 In some package managers `v4l2loopback-utils` is found in `v4l-utils`.
 
-After installing the module you must enable it with 
+After installing the module you must enable it with
 
 ```
 modprobe v4l2loopback
 ```
 
-To verify that this worked, execute: 
+To verify that this worked, execute:
 
 ```
 v4l2-ctl --list-devices
