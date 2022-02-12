@@ -12,6 +12,9 @@ window_title=reStream     # stream window title is reStream
 video_filters=""          # list of ffmpeg filters to apply
 unsecure_connection=false # Establish a unsecure connection that is faster
 
+# values from environment
+[ -n "$REMARKABLE_IP" ] && remarkable="$REMARKABLE_IP"
+
 # loop through arguments and process them
 while [ $# -gt 0 ]; do
     case "$1" in
