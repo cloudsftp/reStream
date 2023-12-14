@@ -20,6 +20,7 @@ measure_throughput=false                  # measure how fast data is being trans
 window_title=reStream                     # stream window title is reStream
 video_filters=""                          # list of ffmpeg filters to apply
 unsecure_connection=false                 # Establish a unsecure connection that is faster
+invert="${REMARKABLE_INVERT:-false}"      # Invert colors
 
 # loop through arguments and process them
 while [ $# -gt 0 ]; do
@@ -84,6 +85,10 @@ while [ $# -gt 0 ]; do
             ;;
         -u | --unsecure-connection)
             unsecure_connection=true
+            shift
+            ;;
+        -i | --invert-colors)
+            invert=true
             shift
             ;;
         -h | --help | *)
@@ -163,7 +168,7 @@ case "$rm_version" in
                 echo "Using the newer :mem: video settings."
                 bytes_per_pixel=2
                 pixel_format="gray16be"
-                video_filters="$video_filters eq=gamma=0.125:brightness=0.825,transpose=3"
+                video_filters="$video_filters curves=all=0.045/0 0.06/1,transpose=3"
             # Use the previous video settings. 
             else
                 echo "Using the older :mem: video settings."
@@ -179,6 +184,10 @@ case "$rm_version" in
         exit 1
         ;;
 esac
+
+if $invert; then
+    video_filters="$video_filters,negate"
+fi
 
 # technical parameters
 loglevel="info"
